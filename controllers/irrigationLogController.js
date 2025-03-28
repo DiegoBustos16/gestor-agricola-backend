@@ -1,4 +1,5 @@
 const { IrrigationLog } = require('../models');
+const { Op } = require('sequelize');
 
 exports.getIrrigationLogsByWaterShift = async (req, res) => {
   try {
@@ -34,6 +35,24 @@ exports.getIrrigationLogById = async (req, res) => {
 exports.createIrrigationLog = async (req, res) => {
   try {
     const { quadrant, startDate, finishDate, waterShiftId } = req.body;
+
+    const overlappingLogs = await IrrigationLog.findAll({
+      where: {
+        quadrant,
+        waterShiftId,
+        [Op.and]: [
+          { startDate: { [Op.lt]: finishDate } },
+          { finishDate: { [Op.gt]: startDate } }
+        ]
+      }
+    });
+
+    if (overlappingLogs.length > 0) {
+      return res.status(400).json({
+        message: 'El nuevo registro se solapa con uno existente para este cuartel y turno.'
+      });
+    }
+
     const newLog = await IrrigationLog.create({ quadrant, startDate, finishDate, waterShiftId });
     res.status(201).json(newLog);
   } catch (error) {
@@ -45,9 +64,29 @@ exports.updateIrrigationLog = async (req, res) => {
   try {
     const { id } = req.params;
     const { quadrant, startDate, finishDate, waterShiftId } = req.body;
+
+    const overlappingLogs = await IrrigationLog.findAll({
+      where: {
+        id: { [Op.ne]: id },
+        quadrant,
+        waterShiftId,
+        [Op.and]: [
+          { startDate: { [Op.lt]: finishDate } },
+          { finishDate: { [Op.gt]: startDate } }
+        ]
+      }
+    });
+
+    if (overlappingLogs.length > 0) {
+      return res.status(400).json({
+        message: 'El registro actualizado se solapa con uno existente para este cuartel y turno'
+      });
+    }
+
     const log = await IrrigationLog.findByPk(id);
     if (!log)
       return res.status(404).json({ message: 'Irrigation Log no encontrado' });
+
     log.quadrant = quadrant;
     log.startDate = startDate;
     log.finishDate = finishDate;
