@@ -109,3 +109,36 @@ exports.deleteIrrigationLog = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getHistory = async (req, res) => {
+  try {
+    const { fromDate, toDate } = req.query;
+    if (!fromDate || !toDate) {
+      return res.status(400).json({ message: "Se requieren los parámetros fromDate y toDate" });
+    }
+    const logs = await IrrigationLog.findAll({
+      where: {
+        startDate: { [Op.gte]: new Date(fromDate) },
+        finishDate: { [Op.lte]: new Date(toDate) }
+      }
+    });
+
+    const historyMap = {};
+    logs.forEach(log => {
+      const quadrant = log.quadrant;
+      const start = new Date(log.startDate);
+      const finish = new Date(log.finishDate);
+      const hours = (finish.getTime() - start.getTime()) / (1000 * 60 * 60);
+      historyMap[quadrant] = (historyMap[quadrant] || 0) + hours;
+    });
+
+    const result = Object.keys(historyMap).map(q => ({
+      quadrant: parseInt(q),
+      total: parseFloat(historyMap[q].toFixed(2))
+    }));
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

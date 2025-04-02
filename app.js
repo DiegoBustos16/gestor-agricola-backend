@@ -15,6 +15,8 @@ app.use('/api/water-shifts', require('./routes/waterShiftRoutes'));
 app.use('/api/irrigation-logs', require('./routes/irrigationLogRoutes'));
 app.use('/api/quadrants', require('./routes/quadrantRoutes'));
 
-app.listen(port, () => {
+const { startScheduler } = require('./services/emailScheduler');
+app.listen(port, async () => {
   console.log(`Servidor corriendo en el puerto ${port}`);
+  await startScheduler();
 });
