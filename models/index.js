@@ -22,7 +22,7 @@ module.exports = sequelize;
 const WaterShift = require('./waterShift')(sequelize);
 const IrrigationLog = require('./irrigationLog')(sequelize);
 
-WaterShift.hasMany(IrrigationLog, { foreignKey: 'waterShiftId' });
+WaterShift.hasMany(IrrigationLog, { foreignKey: 'waterShiftId', onDelete: 'CASCADE', hooks: true });
 IrrigationLog.belongsTo(WaterShift, { foreignKey: 'waterShiftId' });
 
 sequelize.sync()
