@@ -4,9 +4,12 @@ const irrigationLogController = require('../controllers/irrigationLogController'
 
 router.get('/', irrigationLogController.getAllIrrigationLogs);
 router.get('/history', irrigationLogController.getHistory);
-router.get('/:id', irrigationLogController.getIrrigationLogById);
+
+router.get('/water-shift/:waterShiftId(\\d+)', irrigationLogController.getIrrigationLogsByWaterShift);
+router.get('/:id(\\d+)', irrigationLogController.getIrrigationLogById);
+router.put('/:id(\\d+)', irrigationLogController.updateIrrigationLog);
+router.delete('/:id(\\d+)', irrigationLogController.deleteIrrigationLog);
+
 router.post('/', irrigationLogController.createIrrigationLog);
-router.put('/:id', irrigationLogController.updateIrrigationLog);
-router.delete('/:id', irrigationLogController.deleteIrrigationLog);
-router.get('/water-shift/:waterShiftId', irrigationLogController.getIrrigationLogsByWaterShift);
+
 module.exports = router;

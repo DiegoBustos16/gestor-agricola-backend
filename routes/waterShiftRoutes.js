@@ -3,9 +3,11 @@ const router = express.Router();
 const waterShiftController = require('../controllers/waterShiftController');
 
 router.get('/', waterShiftController.getAllWaterShifts);
-router.get('/:id', waterShiftController.getWaterShiftById);
+
+router.get('/:id(\\d+)', waterShiftController.getWaterShiftById);
+router.put('/:id(\\d+)', waterShiftController.updateWaterShift);
+router.delete('/:id(\\d+)', waterShiftController.deleteWaterShift);
+
 router.post('/', waterShiftController.createWaterShift);
-router.put('/:id', waterShiftController.updateWaterShift);
-router.delete('/:id', waterShiftController.deleteWaterShift);
 
 module.exports = router;
